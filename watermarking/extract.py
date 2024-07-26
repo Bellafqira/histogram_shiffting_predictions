@@ -4,7 +4,7 @@ from copy import deepcopy
 import numpy as np
 from PIL import Image
 
-from utils.utils import generate_random_binary_array_from_string, sha256_to_binary_np_array
+from utils.utils import generate_random_binary_array_from_string
 
 
 def extract_watermark(conf):
