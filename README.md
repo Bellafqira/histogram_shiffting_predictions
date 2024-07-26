@@ -1,6 +1,6 @@
 # Watermarking Project
 
-This project presents a watermarking scheme inspired by [1]. This scheme consists of histogram shifting on the prediction errors. It supports only 2D images (e.g., grayscale Lena image).
+This project presents a watermarking scheme inspired by [1]. This scheme consists of histogram shifting on the prediction errors. It is a reversible watermarking scheme. It supports only 2D images (e.g., grayscale Lena image).
 
 [1] Naskar, R., & Subhra Chakraborty, R. (2013). Histogram‐bin‐shifting‐based reversible watermarking for colour images. IET Image Processing, 7(2), 99-110.
 
