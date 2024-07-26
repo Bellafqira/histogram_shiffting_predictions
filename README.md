@@ -54,5 +54,21 @@ This project includes a configuration file that allows you to customize various 
 
 Run the following command to execute tests:
 
-```bash
-python -m unittest tests.test_cases
+   ```bash
+    python -m unittest tests.test_cases
+```
+## The following tests are provided:
+    
+```python
+    print("Test Embedding watermark")
+    embed_watermark(conf_wat00.cf_00)
+    print("Test Extracting watermark")
+    extract_watermark(conf_wat00.cf_00)
+    print("Test Comparing watermarks")
+    compare_wat(conf_wat00.cf_00)
+    print("Test Computing PSNR")
+    compare_psnr(conf_wat00.cf_00)
+   ```
+
+## Contributing
+Contributions are welcome. Please submit a pull request with your changes. If you have any questions, please contact reda.bellafqira@imt-atlantique.fr
