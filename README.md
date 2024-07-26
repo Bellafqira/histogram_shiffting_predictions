@@ -21,11 +21,11 @@ The inputs to the algorithm are: original image, watermark, kernel, stride, thre
 
 First, we check if the bit corresponding to the considered region of the random sequence generated above is equal to 1. If it is not, we move to the next region. Otherwise, we apply the kernel to each region of the image to compute a prediction by region:
 
-\[ \text{prediction} = \text{region} \ast \text{kernel} \]
+    prediction = region * kernel
 
-where \(\ast\) is the convolution operator. Then we compute the error of the prediction between the center of the region and the prediction as follows:
+where "*" is the convolution operator. Then we compute the error of the prediction between the center of the region and the prediction as follows:
 
-\[ \text{error} = \text{region\_center} - \text{int(prediction)} \]
+    error = region_center - int(prediction)
 
 #### 2.2 Watermarked Error Computation
 
