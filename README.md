@@ -4,6 +4,13 @@ This project presents a watermarking scheme inspired by [1]. This scheme consist
 
 [1] Naskar, R., & Subhra Chakraborty, R. (2013). Histogram‐bin‐shifting‐based reversible watermarking for colour images. IET Image Processing, 7(2), 99-110.
 
+## Requirements
+
+To set up the project environment, you'll need:
+
+- numpy~=1.23.5
+- pillow~=10.4.0
+
 ## Setup
 
 1. Clone the repository.
