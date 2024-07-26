@@ -46,7 +46,7 @@ return error_w
 where "bit" is a binary value from the watermark. The watermarked value of the region center is then given as: 
 
 
-    pix_wat = prediction + error
+    pix_wat = int(prediction) + error
 
 We then move by stride to the next region.
 
@@ -88,7 +88,7 @@ else:
 
 where "bit" is the extracted bit. The restored value of the region center is then given as:
 
-    pix_wat = prediction + error
+    pix_wat = int(prediction) + error
 
 We then move by stride to the next region to extract the watermark bit and restore the region center if it was modified.
 
