@@ -1,6 +1,4 @@
 # Watermarking Project
-
-# Watermarking Project
 This project presents a watermarking scheme inspired by Naskar and Subhra Chakraborty (2013) [1]. The scheme uses histogram shifting on the prediction errors and is reversible. It supports only 2D images (e.g., grayscale Lena image).
 
 [1] Naskar, R., & Subhra Chakraborty, R. (2013). Histogram‐bin‐shifting‐based reversible watermarking for colour images. IET Image Processing, 7(2), 99-110.
