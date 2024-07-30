@@ -169,8 +169,7 @@ This project includes a configuration file that allows you to customize various 
         "kernel": np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]]),  # Kernel to compute the prediction error
         "stride": 2,  # The size of the step to move the kernel. This should be greater than half the number of kernel rows + 1
         
-        "T_low": -1,  # Parameter of the histogram shifting (see [1] for more details)
-        "T_hi": 1,  # Parameter of the histogram shifting (see [1] for more details)
+        "T_hi": 0,  # Parameter of the histogram shifting (see [1] for more details)
 
         "secret_key": "imt_atlantique",  # Secret key used to generate a random sequence that determines if a block will be watermarked or not
         "message": "a seed",  # Seed to generate the watermark; the size of the watermark depends on the capacity in the image
