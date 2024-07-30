@@ -62,7 +62,6 @@ def extract_watermark(conf):
                     error, bit = extraction_value(error_w, t_hi)
 
                     if bit == 0 or bit == 1:
-                        # print("bit added =", bit)
                         ext_watermark.append(bit)
 
                     pix_wat = neighbours + error
@@ -71,10 +70,9 @@ def extract_watermark(conf):
             else:
                 idx_secret_key += 1
 
-    if ext_watermark[-1] == 0:
-        ext_watermark = ext_watermark[:-1]
-    else:
-        overflow_wat = ext_watermark[-len(overflow_array_positions)-1:-1]
+    # Restore the overflow regions
+    if len(overflow_array_positions) != 0:
+        overflow_wat = ext_watermark[-len(overflow_array_positions):]
         for idx, pos in enumerate(overflow_array_positions):
             recovered_image[pos] -= overflow_wat[idx]
         ext_watermark = ext_watermark[:-len(overflow_array_positions)-1]

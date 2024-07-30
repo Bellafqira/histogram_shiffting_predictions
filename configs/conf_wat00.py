@@ -1,10 +1,9 @@
 import numpy as np
 
-cf_00 = {"kernel": np.array([[0, 1, 0],
-                             [1, 0, 1],
-                             [0, 1, 0]]),
+cf_00 = {"kernel": np.array([[0, 1/4, 0],
+                             [1/4, 0, 1/4],
+                             [0, 1/4, 0]]),
          "stride": 2,
-         "T_low": -1,
          "T_hi": 1,
 
          "secret_key": "imt_atlantique",  # Select the blocks to watermark
@@ -26,7 +25,6 @@ cf_01 = {"kernel": np.array([[0, 1/4, 0],
                              [1/4, 0, 1/4],
                              [0, 1/4, 0]]),
          "stride": 2,
-         "T_low": -1,
          "T_hi": 0,
 
          "secret_key": "imt_atlantique",  # Select the blocks to watermark
