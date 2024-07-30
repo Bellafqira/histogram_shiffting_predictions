@@ -90,7 +90,7 @@ overflow_positions = []
 if error_w >= 0:
     if region_center == 255:
         overflow_positions.append(region_center.position)
-        # We embed the position of the overflow values to recover the original image quickly
+        # We keep in memory the positions of the overflow values to recover the original image quickly
     elif error_w > 2 * threshold_high + 1:
         error = error_w - threshold_high - 1
         pix_rec = int(prediction) + error
