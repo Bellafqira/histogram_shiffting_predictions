@@ -41,6 +41,9 @@ def extract_watermark(conf):
     # idx of the watermark and the secret key
     idx_secret_key = 0
 
+    # Overflow indices
+    overflow_array_positions = []
+
     # Perform the extraction with the convolution
     print("start ... Perform the extraction ...")
     for y in range(0, output_height):
@@ -51,20 +54,38 @@ def extract_watermark(conf):
                 # Perform element-wise multiplication and sum the result
                 neighbours = np.sum(region * kernel) // nonzero_kernel
                 center = recovered_image[y * stride + kernel_height // 2, x * stride + kernel_width // 2]
+
                 error_w = center - neighbours
-                error, bit = extraction_value(error_w, t_low, t_hi)
+                if error_w >= 0:
+                    if center == 255:
+                        overflow_array_positions.append((y * stride + kernel_height // 2, x * stride + kernel_width // 2))
+                        idx_secret_key += 1
+                        continue
 
-                if bit == 0 or bit == 1:
-                    ext_watermark.append(bit)
+                    error, bit = extraction_value(error_w, t_low, t_hi)
 
-                pix_wat = neighbours + error
-                recovered_image[y * stride + kernel_height // 2, x * stride + kernel_width // 2] = pix_wat
+                    if bit == 0 or bit == 1:
+                        # print("bit added =", bit)
+                        ext_watermark.append(bit)
+
+                    pix_wat = neighbours + error
+                    recovered_image[y * stride + kernel_height // 2, x * stride + kernel_width // 2] = pix_wat
                 idx_secret_key += 1
             else:
                 idx_secret_key += 1
 
+    if ext_watermark[-1] == 0:
+        ext_watermark = ext_watermark[:-1]
+    else:
+        overflow_wat = ext_watermark[-len(overflow_array_positions)-1:-1]
+        print("*****ove", overflow_wat)
+        for idx, pos in enumerate(overflow_array_positions):
+            recovered_image[pos] -= overflow_wat[idx]
+        ext_watermark = ext_watermark[:-len(overflow_array_positions)]
+
+
     # Save to a binary watermark file
-    ext_watermark = np.array(ext_watermark)
+
     np.save(extracted_watermark_path, np.array(ext_watermark))
 
     print("The watermark extracted successfully")
@@ -74,7 +95,7 @@ def extract_watermark(conf):
 
 
 def extraction_value(error_w: int, thresh_low: int, thresh_hi: int):
-    bit = 5
+    bit = None
     if error_w < (2*thresh_low - 1):
         error = error_w + abs(thresh_low) + 1
     elif error_w > (2*thresh_hi + 1):
@@ -82,9 +103,11 @@ def extraction_value(error_w: int, thresh_low: int, thresh_hi: int):
     else:
         bit = error_w % 2
         if error_w < 0:
-            error = (error_w + bit) / 2
+            error = (error_w + bit) // 2
+            # print(error, error_w, bit)
         else:
-            error = (error_w - bit) / 2
+            error = (error_w - bit) // 2
+            # print(error, error_w, bit)
 
     return error, bit
 
