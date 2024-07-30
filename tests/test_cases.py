@@ -43,21 +43,26 @@ def compare_wat(conf):
     print("The capacity of watermarking == ", len(watermark_extracted)/(image_height*image_width), "and the shape = ",
           watermark_extracted.shape)
 
-    # watermark_extracted = reshape_and_compute(watermark_extracted)
-    # print("watermark extracted after reshape", watermark_extracted[:100])
-    # I do maybe a majority vote to get a watermark of size 256.
+    # Generate the original watermark from the message and the secret key using SHA256
     message = conf["message"]
-    watermark_original = sha256_to_binary_np_array(message)
+    secret_key = conf["secret_key"]
 
+    watermark_original = sha256_to_binary_np_array(message + secret_key)
+    # reshape the original watermark to the size of the extracted watermark
     watermark_original = np.tile(watermark_original, len(watermark_extracted)//len(watermark_original) + 1)
 
     if watermark_original.size > watermark_extracted.size:
         watermark_original = watermark_original[:watermark_extracted.size]
 
     # Comparison of the watermarks using the BER as a metric
-    print("compute BER == ", compute_ber(watermark_original, watermark_extracted))
-    # sss
-    print("positions == ", np.where(watermark_original != watermark_extracted)[0])
+    print("compute BER without the majority vote == ", compute_ber(watermark_original, watermark_extracted))
+
+    # I do a majority vote to get a watermark of size 256. This could be interesting for a robust scheme
+    watermark_extracted = reshape_and_compute(watermark_extracted)
+    watermark_original = sha256_to_binary_np_array(message + secret_key)
+
+    # Comparison of the watermarks using the BER as a metric
+    print("compute BER with the majority vote == ", compute_ber(watermark_original, watermark_extracted))
 
 
 def compare_psnr(conf):

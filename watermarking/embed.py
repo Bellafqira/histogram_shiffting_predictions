@@ -12,9 +12,9 @@ def embed_watermark(conf):
 
     kernel, stride = conf["kernel"], conf["stride"]
 
-    t_low, t_hi = conf["T_low"], conf["T_hi"]
+    t_hi = conf["T_hi"]
 
-    watermark = sha256_to_binary_np_array(message)
+    watermark = sha256_to_binary_np_array(message + secret_key)
 
     image = Image.open(original_image_path).convert('L')
     image_np = np.array(image)
@@ -30,9 +30,6 @@ def embed_watermark(conf):
     output_height = (image_height - kernel_height) // stride + 1
     output_width = (image_width - kernel_width) // stride + 1
 
-    # number of element selected by the kernel
-    nonzero_kernel = np.count_nonzero(kernel)
-
     # idx of the watermark and the secret key
     idx_wat = 0
     idx_secret_key = 0
@@ -41,23 +38,19 @@ def embed_watermark(conf):
     overflow_array = []
 
     # Perform the embedding with the convolution
-    print("start ... Perform the embedding ...")
+    print("start ... 1. Perform the embedding ...")
     for y in range(0, output_height):
         for x in range(0, output_width):
             if secret_key[idx_secret_key] == 1:
                 # Extract the current region of interest
                 region = image_np[y * stride:y * stride + kernel_height, x * stride:x * stride + kernel_width]
                 # Perform element-wise multiplication and sum the result
-                neighbours = np.sum(region * kernel) // nonzero_kernel
+                neighbours = np.sum(region * kernel) // 1
+
                 center = image_np[y * stride + kernel_height // 2, x * stride + kernel_width // 2]
                 error = center - neighbours
 
                 if error >= 0:
-
-                    if center >= 254:
-                        print("************** overflow here 0 **************")
-                        print((y * stride + kernel_height // 2, x * stride + kernel_width // 2))
-
                     if center == 254:
                         image_np[y * stride + kernel_height // 2, x * stride + kernel_width // 2] += 1
                         overflow_array.append(1)
@@ -68,9 +61,8 @@ def embed_watermark(conf):
                         idx_secret_key += 1
                         continue
 
-                    error_w, bit = embedding_value(error, t_low, t_hi, watermark[idx_wat % 256])
+                    error_w, bit = embedding_value(error, t_hi, watermark[idx_wat % 256])
                     pix_wat = neighbours + error_w
-                    # print((y * stride + kernel_height // 2, x * stride + kernel_width // 2))
 
                     image_np[y * stride + kernel_height // 2, x * stride + kernel_width // 2] = pix_wat
 
@@ -80,18 +72,15 @@ def embed_watermark(conf):
             else:
                 idx_secret_key += 1
 
-
     # Perform the embedding at the end
     if len(overflow_array) == 0:
         overflow_array.append(0)
     else:
         overflow_array.append(1)
 
-    print("**************** overflow array here 1 :", overflow_array)
-
     idx_overflow = len(overflow_array) -1
     # Perform the embedding with the convolution
-    print("start ... Perform the embedding ...")
+    print("start ... 2. Overflow management ...")
     for y in range(output_height-1, -1, -1):
         for x in range(output_width-1, -1, -1):
             if idx_overflow == -1:
@@ -100,27 +89,21 @@ def embed_watermark(conf):
                 # Extract the current region of interest
                 region = original_image_copy[y * stride:y * stride + kernel_height, x * stride:x * stride + kernel_width]
                 # Perform element-wise multiplication and sum the result
-                neighbours = np.sum(region * kernel) // nonzero_kernel
+                neighbours = np.sum(region * kernel)//1
                 center = original_image_copy[y * stride + kernel_height // 2, x * stride + kernel_width // 2]
                 error = center - neighbours
 
                 if error >= 0:
 
-                    if center >= 254:
-                        print("************overflow here 2 *******************", (y * stride + kernel_height // 2, x * stride + kernel_width // 2))
-
                     if center == 254 or center == 255:
                         idx_secret_key -= 1
                         continue
-                    error_w, bit = embedding_value(error, t_low, t_hi, overflow_array[idx_overflow])
+                    error_w, bit = embedding_value(error, t_hi, overflow_array[idx_overflow])
                     pix_wat = neighbours + error_w
-
-
                     image_np[y * stride + kernel_height // 2, x * stride + kernel_width // 2] = pix_wat
 
                     if bit == 0 or bit == 1:
                         idx_overflow -= 1
-
 
                 idx_secret_key -= 1
             else:
@@ -132,16 +115,11 @@ def embed_watermark(conf):
     print("The watermark embedding successfully")
 
 
-def embedding_value(error: int, thresh_low: int, thresh_hi: int, bit: int):
-    if error < thresh_low:
-        error_w = error - abs(thresh_low) - 1
-        x = None
-    elif error > thresh_hi:
+def embedding_value(error: int, thresh_hi: int, bit: int):
+
+    if error > thresh_hi:
         error_w = error + abs(thresh_hi) + 1
         x = None
-    elif thresh_low <= error < 0:
-        error_w = 2 * error - bit
-        x = bit
         # print(error, error_w, bit)
     elif 0 <= error <= thresh_hi:
         error_w = 2 * error + bit

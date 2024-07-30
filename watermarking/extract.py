@@ -15,7 +15,7 @@ def extract_watermark(conf):
     secret_key = conf["secret_key"]
     kernel, stride = conf["kernel"], conf["stride"]
 
-    t_low, t_hi = conf["T_low"], conf["T_hi"]
+    t_hi = conf["T_hi"]
 
     watermarked_image = Image.open(watermarked_image_path).convert('L')
     watermarked_image_np = np.array(watermarked_image)
@@ -29,9 +29,6 @@ def extract_watermark(conf):
     # Calculate the dimensions of the prediction image
     output_height = (image_height - kernel_height) // stride + 1
     output_width = (image_width - kernel_width) // stride + 1
-
-    # number of element selected by the kernel
-    nonzero_kernel = np.count_nonzero(kernel)
 
     recovered_image = deepcopy(watermarked_image_np)
 
@@ -52,7 +49,7 @@ def extract_watermark(conf):
                 # Extract the current region of interest
                 region = recovered_image[y * stride:y * stride + kernel_height, x * stride:x * stride + kernel_width]
                 # Perform element-wise multiplication and sum the result
-                neighbours = np.sum(region * kernel) // nonzero_kernel
+                neighbours = np.sum(region * kernel) // 1
                 center = recovered_image[y * stride + kernel_height // 2, x * stride + kernel_width // 2]
 
                 error_w = center - neighbours
@@ -62,7 +59,7 @@ def extract_watermark(conf):
                         idx_secret_key += 1
                         continue
 
-                    error, bit = extraction_value(error_w, t_low, t_hi)
+                    error, bit = extraction_value(error_w, t_hi)
 
                     if bit == 0 or bit == 1:
                         # print("bit added =", bit)
@@ -78,36 +75,26 @@ def extract_watermark(conf):
         ext_watermark = ext_watermark[:-1]
     else:
         overflow_wat = ext_watermark[-len(overflow_array_positions)-1:-1]
-        print("*****ove", overflow_wat)
         for idx, pos in enumerate(overflow_array_positions):
             recovered_image[pos] -= overflow_wat[idx]
-        ext_watermark = ext_watermark[:-len(overflow_array_positions)]
-
+        ext_watermark = ext_watermark[:-len(overflow_array_positions)-1]
 
     # Save to a binary watermark file
-
     np.save(extracted_watermark_path, np.array(ext_watermark))
 
     print("The watermark extracted successfully")
-
     recovered_image = Image.fromarray(np.uint8(recovered_image))
     recovered_image.save(recovered_image_path)
 
 
-def extraction_value(error_w: int, thresh_low: int, thresh_hi: int):
+def extraction_value(error_w: int, thresh_hi: int):
     bit = None
-    if error_w < (2*thresh_low - 1):
-        error = error_w + abs(thresh_low) + 1
-    elif error_w > (2*thresh_hi + 1):
-        error = error_w - abs(thresh_hi) - 1
+
+    if error_w > (2*thresh_hi + 1):
+        error = error_w - thresh_hi - 1
     else:
         bit = error_w % 2
-        if error_w < 0:
-            error = (error_w + bit) // 2
-            # print(error, error_w, bit)
-        else:
-            error = (error_w - bit) // 2
-            # print(error, error_w, bit)
+        error = (error_w - bit) // 2
 
     return error, bit
 
