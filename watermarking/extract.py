@@ -1,4 +1,7 @@
+import hashlib
+import json
 import math
+import os
 from copy import deepcopy
 
 import numpy as np
@@ -9,16 +12,40 @@ from utils.utils import generate_random_binary_array_from_string
 
 def extract_watermark(conf):
 
-    watermarked_image_path, recovered_image_path, extracted_watermark_path = (
+    watermarked_image_path, recovered_image_path, extracted_watermark_path, = (
         conf["watermarked_image_path"], conf["recovered_image_path"], conf["extracted_watermark_path"])
-
-    secret_key = conf["secret_key"]
-    kernel, stride = conf["kernel"], conf["stride"]
-
-    t_hi = conf["T_hi"]
 
     watermarked_image = Image.open(watermarked_image_path).convert('L')
     watermarked_image_np = np.array(watermarked_image)
+
+    #  hash of the watermarked image
+
+    img_bytes = watermarked_image_np.tobytes()
+    sha256 = hashlib.sha256()
+    sha256.update(img_bytes)
+    id_watermarked_image = sha256.hexdigest()
+
+    # Read the configs file
+    # Check if the file exists
+    if os.path.exists(conf["configs_path"]):
+        with open(conf["configs_path"], 'r') as file:
+            data = json.load(file)
+    else:
+            data = {}
+            Exception("configs file does not exist")
+
+    if id_watermarked_image in data.keys():
+        configs = data[id_watermarked_image]
+    else:
+        configs = {}
+        Exception("*****************No watermark match the one embedded in the watermarked "
+                  "image*************************")
+
+
+    secret_key = configs["secret_key"]
+    kernel, stride = np.array(configs["kernel"]), configs["stride"]
+
+    t_hi = configs["T_hi"]
 
     # Get the dimensions of the image and the kernel
     image_height, image_width = watermarked_image_np.shape
@@ -62,6 +89,7 @@ def extract_watermark(conf):
                     error, bit = extraction_value(error_w, t_hi)
 
                     if bit == 0 or bit == 1:
+                        # print(bit)
                         ext_watermark.append(bit)
 
                     pix_wat = neighbours + error

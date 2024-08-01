@@ -1,9 +1,12 @@
+import hashlib
 from copy import deepcopy
 
 import numpy as np
 from PIL import Image
 from utils.utils import sha256_to_binary_np_array, generate_random_binary_array_from_string
-
+import json
+import os
+from datetime import datetime
 
 def embed_watermark(conf):
     original_image_path, message, watermarked_image_path, secret_key = (conf["original_image_path"], conf["message"],
@@ -68,17 +71,12 @@ def embed_watermark(conf):
 
                     if bit == 0 or bit == 1:
                         idx_wat += 1
+
                 idx_secret_key += 1
             else:
                 idx_secret_key += 1
 
-
-    # if len(overflow_array) == 0:
-    #     overflow_array.append(0)
-    # else:
-    #     overflow_array.append(1)
-
-    # Perform the embedding at the end
+    #  Perform the embedding starting by the last regions
     if len(overflow_array) != 0:
         idx_overflow = len(overflow_array)
         # Perform the embedding with the convolution
@@ -110,8 +108,23 @@ def embed_watermark(conf):
                 else:
                     idx_secret_key -= 1
 
-    watermarked_image_np = image_np
-    watermarked_image = Image.fromarray(np.uint8(watermarked_image_np))
+
+    #  Compute the SHA-256 hash
+    input_string = message + conf["secret_key"]
+    watermark = hashlib.sha256(input_string.encode()).digest()
+    # Convert the hash to a binary representation (a sequence of bits)
+    watermark = ''.join(format(byte, '08b') for byte in watermark)
+
+    # hash the watermarked image, and make its hash as an id in the configs file
+    img_bytes = image_np.tobytes()
+    sha256 = hashlib.sha256()
+    sha256.update(img_bytes)
+    id_watermarked_image = sha256.hexdigest()
+
+    # Update the infos in the configs file
+    update_watermarking_info(conf, watermark, id_watermarked_image)
+    # save then the image
+    watermarked_image = Image.fromarray(np.uint8(image_np))
     watermarked_image.save(watermarked_image_path)
     print("The watermark embedding successfully")
 
@@ -129,3 +142,31 @@ def embedding_value(error: int, thresh_hi: int, bit: int):
         x = None
         Exception("problem with the embedding function")
     return error_w, x
+
+
+def update_watermarking_info(cf, watermark, id):
+    # Create a new entry for the watermarking process
+    new_entry = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "secret_key": cf["secret_key"],
+        "message": cf["message"],
+        "watermark": watermark,
+        "kernel": cf["kernel"].tolist(),
+        "stride": 2,
+        "T_hi": 0,
+    }
+
+    # Check if the file exists
+    if os.path.exists(cf["configs_path"]):
+        with open(cf["configs_path"], 'r') as file:
+            data = json.load(file)
+    else:
+        data = {}
+
+    if id not in data.keys():
+        # Append the new entry to the existing data
+        data[id] = new_entry
+
+    # Save the updated data back to the JSON file
+    with open(cf["configs_path"], 'w') as file:
+        json.dump(data, file, indent=4)

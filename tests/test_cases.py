@@ -5,23 +5,26 @@ from PIL import Image
 
 from utils.utils import sha256_to_binary_np_array, reshape_and_compute, compute_ber, compute_psnr
 from watermarking.embed import embed_watermark
-from configs import conf_wat00
+from configs import cf_embed, cf_extract
 from watermarking.extract import extract_watermark
 
+config_embed = cf_embed.cf_00
+config_extract = cf_extract.cf_00
 
-cf = conf_wat00.cf_01
+cf_test = config_embed | config_extract
+
 
 class TestCases(unittest.TestCase):
     def test_embed(self):
         # Set the seed
         print("Test Embedding watermark")
-        embed_watermark(cf)
+        embed_watermark(config_embed)
         print("Test Extracting watermark")
-        extract_watermark(cf)
+        extract_watermark(config_extract)
         print("Test Comparing watermarks")
-        compare_wat(cf)
+        compare_wat(cf_test)
         print("Test Computing PSNR")
-        compare_psnr(cf)
+        compare_psnr(cf_test)
 
 
 if __name__ == '__main__':
@@ -53,6 +56,9 @@ def compare_wat(conf):
 
     if watermark_original.size > watermark_extracted.size:
         watermark_original = watermark_original[:watermark_extracted.size]
+
+    print(watermark_original[0:100])
+    print(watermark_extracted[0:100])
 
     # Comparison of the watermarks using the BER as a metric
     print("compute BER without the majority vote == ", compute_ber(watermark_original, watermark_extracted))
