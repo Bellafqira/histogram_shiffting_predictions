@@ -1,5 +1,3 @@
-import numpy as np
-
 cf_00 = {
          "watermarked_image_path": "results/Lena_watermarked.tiff",
 

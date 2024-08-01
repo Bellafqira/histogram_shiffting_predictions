@@ -1,6 +1,5 @@
 import hashlib
 import json
-import math
 import os
 from copy import deepcopy
 
@@ -32,7 +31,7 @@ def extract_watermark(conf):
             data = json.load(file)
     else:
             data = {}
-            Exception("configs file does not exist")
+            Exception("config logs file does not exist")
 
     if id_watermarked_image in data.keys():
         configs = data[id_watermarked_image]

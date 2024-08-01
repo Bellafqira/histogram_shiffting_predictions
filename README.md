@@ -156,41 +156,88 @@ To set up the project environment, you'll need:
     pip install -r requirements.txt
     ```
 
+
+
+
 ## Configuration File
 
-This project includes a configuration file that allows you to customize various aspects of the watermarking process, such as the watermark, the secret key, etc. (for embedding and extraction).
+This project includes several configuration files that allow you to customize various aspects of the watermarking process, such as the watermark, the secret key, and other parameters for embedding and extraction.
 
-- `cf_wat00.py`: This file contains an example configuration to watermark the Lena image:
+### Configuration Files
 
-    ```python
-    import numpy as np
+#### Embedding Configuration (`cf_embed.py`)
+This file contains the configuration for the embedding step. Below is an example configuration:
 
-    cf_00 = {
-        "kernel": np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]]),  # Kernel to compute the prediction error
-        "stride": 2,  # The size of the step to move the kernel. This should be greater than half the number of kernel rows + 1
-        
-        "T_hi": 0,  # Parameter of the histogram shifting (see [1] for more details)
+```python
+cf_00 = {
+    "kernel": np.array([[0, 1 / 4, 0],
+                        [1 / 4, 0, 1 / 4],
+                        [0, 1 / 4, 0]]),  # Kernel to compute the prediction error
+    "stride": 3,  # The size of the step to move the kernel. This should be greater than half the number of kernel rows + 1
+    "T_hi": 0,  # Parameter of the histogram shifting
 
-        "secret_key": "imt_atlantique",  # Secret key used to generate a random sequence that determines if a block will be watermarked or not
-        "message": "a seed",  # Seed to generate the watermark; the size of the watermark depends on the capacity in the image
+    "secret_key": "imt_atlantique",  # Secret key used to generate a random sequence that determines if a block will be watermarked or not
 
-        "original_image_path": "images/Lena.tiff",  # Path of the image to watermark
+    "message": "SessionID_UserID_SenderID_ReceiverID_TimeStamp_DataID",
+    # Seed to generate the watermark; the size of the watermark depends on the capacity in the image
 
-        "watermarked_image_path": "results/Lena_watermarked.tiff",  # Path to save the watermarked image
+    "original_image_path": "images/Lena.tiff",  # Path of the image to watermark
 
-        "recovered_image_path": "results/Lena_recovered.tiff",  # Path to save the recovered image
+    "watermarked_image_path": "results/Lena_watermarked.tiff",  # Path to save the watermarked image
 
-        "extracted_watermark_path": "results/watermark_extracted.npy"  # Path to save the extracted watermark
+    "configs_path": "configs/config_logs.json"  # Path to save the watermarking parameters
+}
+```
+
+#### Embedding Operation Log (`config_logs.json`)
+
+This JSON file logs the parameters of each image watermarking operation. Each embedding operation is saved using the hash of the watermarked image as an identifier. This ensures image integrity, as one can hash the received watermarked image and verify if the hash exists in the config logs file. Below is an example entry in the config_logs.json file:
+
+```python
+  {
+    "9d722523283dadba84bd9cbf7c1ec66ce280d08215801c906354b5bc2dd7849e": {
+        "timestamp": "2024-08-01T16:27:30.576479Z",
+        "secret_key": "imt_atlantique",
+        "message": "a seed",
+        "watermark": "0011111001000001010000100011001000010110111100111110101111111011001100010011100110001010011101100000011011000110110001111110110100011111000110100110110101010100100101101100011010101011001010000000001000000000111111101100000000101000110100111000110100101100",
+        "kernel": [
+            [0.0, 0.25, 0.0],
+            [0.25, 0.0, 0.25],
+            [0.0, 0.25, 0.0]
+        ],
+        "stride": 2,
+        "T_hi": 0
     }
-    ```
+}
+
+```
+#### Extraction Configuration ([cf_extract.py]())
+
+This file contains the configuration for extracting the watermark and restoring the original image from the watermarked image. Below is an example configuration:
+
+```python
+   cf_00 = {
+         "watermarked_image_path": "results/Lena_watermarked.tiff",
+
+         "recovered_image_path": "results/Lena_recovered.tiff",
+
+         "extracted_watermark_path": "results/watermark_extracted.npy",
+
+         "configs_path": "configs/config_logs.json"
+
+         }
+```
+
+These configuration files provide a flexible way to manage and customize the watermarking process, ensuring that each step is properly documented and reproducible
 
 ## Running Tests
 
 Run the following command to execute tests:
 
-   ```bash
+```bash
     python -m unittest tests.test_cases
 ```
+
 ## The following tests are provided:
     
 ```python
