@@ -3,7 +3,7 @@ import numpy as np
 cf_00 = {"kernel": np.array([[0, 1 / 4, 0],
                              [1 / 4, 0, 1 / 4],
                              [0, 1 / 4, 0]]),
-         "stride": 4,
+         "stride": 3,
          "T_hi": 0,
 
          "secret_key": "imt_atlantique",  # Select the blocks to watermark

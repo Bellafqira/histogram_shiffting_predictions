@@ -132,7 +132,7 @@ def embed_watermark(conf):
 def embedding_value(error: int, thresh_hi: int, bit: int):
 
     if error > thresh_hi:
-        error_w = error + abs(thresh_hi) + 1
+        error_w = error + thresh_hi + 1
         x = None
     elif 0 <= error <= thresh_hi:
         error_w = 2 * error + bit
@@ -144,7 +144,7 @@ def embedding_value(error: int, thresh_hi: int, bit: int):
     return error_w, x
 
 
-def update_watermarking_info(cf, watermark, id):
+def update_watermarking_info(cf, watermark, id_hash):
     # Create a new entry for the watermarking process
     new_entry = {
         "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -152,8 +152,8 @@ def update_watermarking_info(cf, watermark, id):
         "message": cf["message"],
         "watermark": watermark,
         "kernel": cf["kernel"].tolist(),
-        "stride": 2,
-        "T_hi": 0,
+        "stride": cf["stride"],
+        "T_hi": cf["T_hi"],
     }
 
     # Check if the file exists
@@ -163,9 +163,7 @@ def update_watermarking_info(cf, watermark, id):
     else:
         data = {}
 
-    if id not in data.keys():
-        # Append the new entry to the existing data
-        data[id] = new_entry
+    data[id_hash] = new_entry
 
     # Save the updated data back to the JSON file
     with open(cf["configs_path"], 'w') as file:

@@ -57,9 +57,6 @@ def compare_wat(conf):
     if watermark_original.size > watermark_extracted.size:
         watermark_original = watermark_original[:watermark_extracted.size]
 
-    print(watermark_original[0:100])
-    print(watermark_extracted[0:100])
-
     # Comparison of the watermarks using the BER as a metric
     print("compute BER without the majority vote == ", compute_ber(watermark_original, watermark_extracted))
 

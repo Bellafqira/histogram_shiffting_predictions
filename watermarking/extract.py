@@ -41,7 +41,6 @@ def extract_watermark(conf):
         Exception("*****************No watermark match the one embedded in the watermarked "
                   "image*************************")
 
-
     secret_key = configs["secret_key"]
     kernel, stride = np.array(configs["kernel"]), configs["stride"]
 
@@ -89,7 +88,6 @@ def extract_watermark(conf):
                     error, bit = extraction_value(error_w, t_hi)
 
                     if bit == 0 or bit == 1:
-                        # print(bit)
                         ext_watermark.append(bit)
 
                     pix_wat = neighbours + error
@@ -114,10 +112,10 @@ def extract_watermark(conf):
 
 
 def extraction_value(error_w: int, thresh_hi: int):
-    bit = None
 
     if error_w > (2*thresh_hi + 1):
         error = error_w - thresh_hi - 1
+        bit = None
     else:
         bit = error_w % 2
         error = (error_w - bit) // 2
