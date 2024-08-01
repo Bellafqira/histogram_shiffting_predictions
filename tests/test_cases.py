@@ -41,7 +41,7 @@ def compare_wat(conf):
     watermark_extracted = np.load(watermark_path)
 
     print("The capacity of watermarking == ", len(watermark_extracted)/(image_height*image_width), "and the shape = ",
-          watermark_extracted.shape)
+          len(watermark_extracted))
 
     # Generate the original watermark from the message and the secret key using SHA256
     message = conf["message"]

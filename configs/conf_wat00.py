@@ -4,7 +4,7 @@ cf_00 = {"kernel": np.array([[0, 1/4, 0],
                              [1/4, 0, 1/4],
                              [0, 1/4, 0]]),
          "stride": 2,
-         "T_hi": 1,
+         "T_hi": 0,
 
          "secret_key": "imt_atlantique",  # Select the blocks to watermark
 
