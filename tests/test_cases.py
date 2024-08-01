@@ -15,7 +15,7 @@ cf_test = config_embed | config_extract
 
 
 class TestCases(unittest.TestCase):
-    def test_embed(self):
+    def tests(self):
         # Set the seed
         print("Test Embedding watermark")
         embed_watermark(config_embed)

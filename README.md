@@ -230,6 +230,22 @@ This file contains the configuration for extracting the watermark and restoring 
 
 These configuration files provide a flexible way to manage and customize the watermarking process, ensuring that each step is properly documented and reproducible
 
+## The following tests are provided:
+    
+```python
+    
+# Set the seed
+print("Test Embedding watermark")
+embed_watermark(config_embed)
+print("Test Extracting watermark")
+extract_watermark(config_extract)
+print("Test Comparing watermarks")
+compare_wat(cf_test)
+print("Test Computing PSNR")
+compare_psnr(cf_test)
+   ```
+
+
 ## Running Tests
 
 Run the following command to execute tests:
@@ -238,18 +254,6 @@ Run the following command to execute tests:
     python -m unittest tests.test_cases
 ```
 
-## The following tests are provided:
-    
-```python
-    print("Test Embedding watermark")
-    embed_watermark(conf_wat00.cf_00)
-    print("Test Extracting watermark")
-    extract_watermark(conf_wat00.cf_00)
-    print("Test Comparing watermarks")
-    compare_wat(conf_wat00.cf_00)
-    print("Test Computing PSNR")
-    compare_psnr(conf_wat00.cf_00)
-   ```
 
 ## Contributing
 Contributions are welcome. Please submit a pull request with your changes. If you have any questions, please contact reda.bellafqira@imt-atlantique.fr
