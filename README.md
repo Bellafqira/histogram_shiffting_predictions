@@ -1,8 +1,9 @@
 # Watermarking Project
 
-This project presents a reversible watermarking scheme based on histogram shifting on prediction errors [1] and an overflow management procedure. It supports only 2D images (e.g., grayscale Lena image).
+This project presents a reversible watermarking scheme based on histogram shifting [1] on prediction errors [2] and an overflow management procedure. It supports only 2D images (e.g., grayscale Lena image).
 
-[1] Naskar, R., & Subhra Chakraborty, R. (2013). Histogram‐bin‐shifting‐based reversible watermarking for colour images. IET Image Processing, 7(2), 99-110.
+[1] Sun, Y., Yuan, X., Liu, T., Huang, G., Lin, Z., & Li, J. (2023). FRRW: A feature extraction-based robust and reversible watermarking scheme utilizing zernike moments and histogram shifting. Journal of King Saud University-Computer and Information Sciences, 35(8), 101698.
+[2] Naskar, R., & Subhra Chakraborty, R. (2013). Histogram‐bin‐shifting‐based reversible watermarking for colour images. IET Image Processing, 7(2), 99-110.
 
 ## Overview of the Proposed Watermarking Modulation
 
