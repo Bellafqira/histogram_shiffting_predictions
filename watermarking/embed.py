@@ -8,6 +8,7 @@ import json
 import os
 from datetime import datetime
 
+
 def embed_watermark(conf):
     original_image_path, message, watermarked_image_path, secret_key = (conf["original_image_path"], conf["message"],
                                                                         conf["watermarked_image_path"],
