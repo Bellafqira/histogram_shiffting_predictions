@@ -30,7 +30,7 @@ cf_01 = {"kernel": np.array([[0, 1 / 4, 0],
          "message": "SessionID_UserID_SenderID_ReceiverID_TimeStamp_DataID",
          # We provide only the seed, and the size of the watermark depends on the capacity in the image
 
-         "original_image_path": "images/modified_overflow.png",
+         "original_image_path": "images/0102.jpeg",
 
          "watermarked_image_path": "results/Normal-1_watermarked.png",
 

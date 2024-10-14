@@ -3,3 +3,7 @@ __pycache__/
 .idea/
 results
 images
+*.jpeg
+*.png
+*.npy
+*.json

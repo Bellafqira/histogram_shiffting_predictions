@@ -1,3 +1,6 @@
+import hashlib
+import json
+import os
 import unittest
 
 import numpy as np
@@ -8,8 +11,8 @@ from watermarking.embed import embed_watermark
 from configs import cf_embed, cf_extract
 from watermarking.extract import extract_watermark
 
-config_embed = cf_embed.cf_00
-config_extract = cf_extract.cf_00
+config_embed = cf_embed.cf_01
+config_extract = cf_extract.cf_01
 
 cf_test = config_embed | config_extract
 
@@ -31,7 +34,35 @@ if __name__ == '__main__':
     unittest.main()
 
 
-def compare_wat(conf):
+def compare_wat(conf, jsonfile=None):
+
+    watermarked_image_path, recovered_image_path, extracted_watermark_path, = (
+        conf["watermarked_image_path"], conf["recovered_image_path"], conf["extracted_watermark_path"])
+
+    watermarked_image = Image.open(watermarked_image_path).convert('L')
+    watermarked_image_np = np.array(watermarked_image)
+
+    #  hash of the watermarked image
+    img_bytes = watermarked_image_np.tobytes()
+    sha256 = hashlib.sha256()
+    sha256.update(img_bytes)
+    id_watermarked_image = sha256.hexdigest()
+
+    # Read the configs file
+    # Check if the file exists
+    if os.path.exists(conf["configs_path"]):
+        with open(conf["configs_path"], 'r') as file:
+            data = json.load(file)
+    else:
+            data = {}
+            Exception("config logs file does not exist")
+
+    if id_watermarked_image in data.keys():
+        configs = data[id_watermarked_image]
+    else:
+        configs = {}
+        Exception("*****************No watermark match the one embedded in the watermarked "
+                  "image*************************")
 
     # I need the size of the image
     original_image_path = conf["original_image_path"]
@@ -49,8 +80,11 @@ def compare_wat(conf):
     # Generate the original watermark from the message and the secret key using SHA256
     message = conf["message"]
     secret_key = conf["secret_key"]
+    timestamp = configs["timestamp"]
 
-    watermark_original = sha256_to_binary_np_array(message + secret_key)
+    watermark_original = sha256_to_binary_np_array(message + secret_key + timestamp)
+
+    # watermark_original = sha256_to_binary_np_array(message + secret_key)
     # reshape the original watermark to the size of the extracted watermark
     watermark_original = np.tile(watermark_original, len(watermark_extracted)//len(watermark_original) + 1)
 
@@ -62,7 +96,7 @@ def compare_wat(conf):
 
     # I do a majority vote to get a watermark of size 256. This could be interesting for a robust scheme
     watermark_extracted = reshape_and_compute(watermark_extracted)
-    watermark_original = sha256_to_binary_np_array(message + secret_key)
+    watermark_original = sha256_to_binary_np_array(message + secret_key + timestamp)
 
     # Comparison of the watermarks using the BER as a metric
     print("compute BER with the majority vote == ", compute_ber(watermark_original, watermark_extracted))

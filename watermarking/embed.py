@@ -17,8 +17,8 @@ def embed_watermark(conf):
     kernel, stride = conf["kernel"], conf["stride"]
     # Get the threshold
     t_hi = conf["T_hi"]
-
-    watermark = sha256_to_binary_np_array(message + secret_key)
+    timestamp = str(datetime.now().timestamp())
+    watermark = sha256_to_binary_np_array(message + secret_key+timestamp)
 
     image = Image.open(original_image_path).convert('L')
     image_np = np.array(image)
@@ -123,7 +123,7 @@ def embed_watermark(conf):
     id_watermarked_image = sha256.hexdigest()
 
     # Update the infos in the configs file
-    update_watermarking_info(conf, watermark, id_watermarked_image)
+    update_watermarking_info(conf, watermark, id_watermarked_image, timestamp)
     # save then the image
     watermarked_image = Image.fromarray(np.uint8(image_np))
     watermarked_image.save(watermarked_image_path)
@@ -145,10 +145,10 @@ def embedding_value(error: int, thresh_hi: int, bit: int):
     return error_w, x
 
 
-def update_watermarking_info(cf, watermark, id_hash):
+def update_watermarking_info(cf, watermark, id_hash, timestamp=None):
     # Create a new entry for the watermarking process
     new_entry = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": timestamp,
         "secret_key": cf["secret_key"],
         "message": cf["message"],
         "watermark": watermark,
